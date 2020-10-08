@@ -1,13 +1,14 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import  Grid from '@material-ui/core/Grid';
-import { colorMain, textSelectionMain } from "styleguide"
+import { colorMain, textSelectionMain } from "components/styleguide"
 
 import { mapLabelToDescription } from "data/Interface"
 
 import { Answers } from "states/answerState"
 import { ActiveStep } from "states/activeStepState"
 import { DocumentQueue } from "states/documentQueueState"
+import { ShowResult } from "states/showResultState"
 
 const buttonTextBox = {
     "fontFamily": textSelectionMain["fontFamily"],
@@ -60,7 +61,10 @@ const useStyles = makeStyles((theme) => ({
   buttonTextBoxInactive: {
     backgroundColor: "white",
     color: textSelectionMain["color"]["inactive"],
-    ...buttonTextBox
+    ...buttonTextBox,
+    "&:hover": {
+      backgroundColor: colorMain["115"],
+    }
   },
   buttonTextExplanationInactive: {
     ...buttonTextExplanation
@@ -90,17 +94,29 @@ export default function JourneySelection() {
   let answers = Answers.useContainer();
   let activeStep = ActiveStep.useContainer();
   let documentQueue = DocumentQueue.useContainer();
+  let showResult = ShowResult.useContainer();
 
   let activeDocument = documentQueue.returnActiveDocument(activeStep.self)
+  answers.prune(activeDocument.identifier)
+  documentQueue.validateFristQuestion(answers.isAgg())
 
-  type CardWithPositionProps = { component: JSX.Element };
 
-  let CardWithPosition = (props: CardWithPositionProps) => {
+  let CardWithPosition = (props: { component: JSX.Element }) => {
     return(
       <Grid item md={3} sm={6} xs={12} className={classes.buttonTextContainer}>
         {props.component}
       </Grid>
     )
+  }
+
+  let nextAction = (arg: number): void => {
+    if (arg === 1) {
+      showResult.show()
+      activeStep.increment(arg)
+    } else if (arg === 0) {}
+    else {
+      activeStep.increment(arg)
+    }
   }
 
   return (
@@ -113,7 +129,8 @@ export default function JourneySelection() {
               <div className={classes.buttonCard}
                 onClick={() => {
                   answers.add(activeDocument.identifier, activeDocument.multiple_choice, label)
-                  documentQueue.add(activeStep.self, label, activeDocument.multiple_choice)
+                  let remainingSteps = documentQueue.add(activeStep.self, label, activeDocument.multiple_choice)
+                  nextAction(remainingSteps)
                 }}
               >
                 <div className={classes.buttonTextBoxInactive}>

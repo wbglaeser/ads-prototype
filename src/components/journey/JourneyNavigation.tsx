@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 
-import { NextButton, BackButton } from "components/journey/JourneyButtons"
+import { BackButton } from "components/journey/JourneyButtons"
 import Stepper from "components/journey/JourneyStepper"
 
 const navBox = {
@@ -47,7 +47,6 @@ export default function JourneyNavigation() {
         <Stepper/>
       </Grid>
       <Grid item md={4} sm={4} lg={4} xs={4} className={classes.nextBox}>
-        <NextButton/>
       </Grid>
     </Grid>
   );
