@@ -1,29 +1,28 @@
 import { createContainer } from 'unstated-next';
 import { useState } from 'react';
+import { FeatureMapLayout } from "customTypes"
+import { mapLabelToId } from "data/Interface"
+import { AnswersLayout } from "customTypes"
 
-import { mapLabelToId } from "data/ProvideDecisionTree"
+import feature_map from "data/featuremap.json"
 
-type OrNull<T> = T | null;
-
-interface AnswersLayout {
-  [key: string]: Array<string>;
-}
+let featureMap: FeatureMapLayout = feature_map;
 
 export function useAnswers(initialState: AnswersLayout = {}) {
   let [self, setAnswers] = useState(initialState)
 
-  const _checkStepInAnswers = (identifier: string): boolean => {
+  let _checkStepInAnswers = (identifier: string): boolean => {
     if ( self.hasOwnProperty(identifier) ) { return true }
     else { return false }
   }
 
-  const _deleteLabelFromStepAnswer = (ans: AnswersLayout, id: string, label: string): AnswersLayout => {
+  let _deleteLabelFromStepAnswer = (ans: AnswersLayout, id: string, label: string): AnswersLayout => {
     let index = ans[id].indexOf(label)
     ans[id].splice(index, 1)
     return ans
   }
 
-  const _overwriteCurrentLabel = (ans: AnswersLayout, id: string, newLabel: string): AnswersLayout => {
+  let _overwriteCurrentLabel = (ans: AnswersLayout, id: string, newLabel: string): AnswersLayout => {
     let delLabel = ans[id][0]
     let delIndex = mapLabelToId(id, delLabel);
     if (delIndex !== null) {
@@ -33,7 +32,7 @@ export function useAnswers(initialState: AnswersLayout = {}) {
     return ans
   }
 
-  const _addLabelToStepAnswer = (ans: AnswersLayout, id: string, label: string, mchoice: boolean): AnswersLayout => {
+  let _addLabelToStepAnswer = (ans: AnswersLayout, id: string, label: string, mchoice: boolean): AnswersLayout => {
     if (mchoice) {
       ans[id].push(label)
     } else {
@@ -42,7 +41,7 @@ export function useAnswers(initialState: AnswersLayout = {}) {
     return ans
   }
 
-  const _addStepWithLabelToAnswers = (ans: AnswersLayout, id: string, label: string): AnswersLayout => {
+  let _addStepWithLabelToAnswers = (ans: AnswersLayout, id: string, label: string): AnswersLayout => {
     ans[id] = [label]
     return ans
   }
@@ -67,6 +66,26 @@ export function useAnswers(initialState: AnswersLayout = {}) {
     setAnswers(_ans)
   }
 
+  let prune = (id: string): void => {
+    if (Object.keys(self).includes(id)) {
+      let _ans: AnswersLayout = {...self}
+      delete _ans[id]
+      setAnswers(_ans)
+    }
+  }
+
+  let isAgg = (): boolean => {
+    let agg: boolean = true;
+    Object.keys(self).map(function(el) {
+      self[el].map(function(_el){
+        if (featureMap[el][_el] !== "agg") {
+          agg = false
+        }
+      })
+    })
+    return agg
+  }
+
   let getAnswersById = (identifier: string): Array<string> => {
     if (self[identifier] === undefined ) { return [] }
      else { return self[identifier]}
@@ -78,8 +97,6 @@ export function useAnswers(initialState: AnswersLayout = {}) {
     } else { return "Identifier not existent"}
   }
 
-  let keys = () => Object.keys(self)
-
-  return { self, add, remove, keys, getAnswersById, getAnswerByKey }
+  return { self, add, remove, getAnswersById, getAnswerByKey, prune, isAgg }
 }
 export const Answers = createContainer(useAnswers)
