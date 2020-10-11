@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import  Grid from '@material-ui/core/Grid';
 import { colorMain, textSelectionMain } from "components/styleguide"
 
+import { TrackEvent } from "App"
 import { mapLabelToDescription } from "data/Interface"
 
 import { Answers } from "states/answerState"
@@ -13,6 +14,7 @@ import { ShowResult } from "states/showResultState"
 const buttonTextBox = {
     "fontFamily": textSelectionMain["fontFamily"],
     "fontSize": textSelectionMain["fontSize"],
+    "lineHeight": 1.15,
     "height": "100%",
     "width": "98%",
     "overflow": "hidden",
@@ -24,7 +26,8 @@ const buttonTextBox = {
 
 const buttonTextExplanation = {
   "fontFamily": "BundesSansWeb-Regular",
-  "fontSize": "1.4vh",
+  "fontSize": "16px",
+  "lineHeight": 1.15,
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -37,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
     '& > *': {
       margin: theme.spacing(1),
     },
-    minHeight: "42vh"
+    minHeight: "45vh"
   },
   buttonContainer: {
     margin: "0px"
@@ -64,6 +67,7 @@ const useStyles = makeStyles((theme) => ({
     ...buttonTextBox,
     "&:hover": {
       backgroundColor: colorMain["115"],
+      color: textSelectionMain["color"]["active"],
     }
   },
   buttonTextExplanationInactive: {
@@ -100,7 +104,6 @@ export default function JourneySelection() {
   answers.prune(activeDocument.identifier)
   documentQueue.validateFristQuestion(answers.isAgg())
 
-
   let CardWithPosition = (props: { component: JSX.Element }) => {
     return(
       <Grid item md={3} sm={6} xs={12} className={classes.buttonTextContainer}>
@@ -131,6 +134,7 @@ export default function JourneySelection() {
                   answers.add(activeDocument.identifier, activeDocument.multiple_choice, label)
                   let remainingSteps = documentQueue.add(activeStep.self, label, activeDocument.multiple_choice)
                   nextAction(remainingSteps)
+                  plausible(TrackEvent.Selection)
                 }}
               >
                 <div className={classes.buttonTextBoxInactive}>

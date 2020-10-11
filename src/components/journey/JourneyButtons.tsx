@@ -6,6 +6,7 @@ import { ActiveStep } from "states/activeStepState"
 import { DocumentQueue } from "states/documentQueueState"
 import { Answers } from "states/answerState"
 import { ShowResult } from "states/showResultState"
+import { colorMain } from "components/styleguide"
 
 const button = {
   "display": "flex",
@@ -19,26 +20,13 @@ const button = {
 }
 
 const useStyles = makeStyles((theme) => ({
-  buttonInactive: {
-    ...button,
-    flexDirection: "row",
-    backgroundColor: "#e0e0e0",
-    padding: theme.spacing(1,3,1,3),
-  },
-  buttonActive: {
-    ...button,
-    flexDirection: "row",
-    backgroundColor: "#a7a7a7",
-    padding: theme.spacing(1,3,1,3),
-    cursor: "pointer",
-  },
   arrow: {
     cursor: "pointer",
-    color: "#a7a7a7",
+    color: "#b8c0c5",
     fontSize: "6vh"
   },
   arrowInvisible: {
-    color: "#fef3df",
+    color: colorMain["15"],
     fontSize: "6vh"
   }
 }));
